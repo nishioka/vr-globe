@@ -1,0 +1,97 @@
+{
+  "name": "vrGlobe",
+  "version": "1.0.0",
+  "description": "jspm es6 project",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "npm run serve",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "bundle": "jspm bundle src/app.js bundle/main.bundle.js --minify --inject",
+    "serve": "jspm depcache src/app.js && jspm unbundle && browser-sync start --server --files '**/*.*'",
+    "jspminstall": "jspm install"
+  },
+  "keywords": [
+    "jspm",
+    "es6"
+  ],
+  "author": "Norihito Nishioka &lt;abigail4649@gmail.com&gt;",
+  "license": "ISC",
+  "jspm": {
+    "name": "app",
+    "dependencies": {
+      "css": "github:systemjs/plugin-css@^0.1.20",
+      "d3": "npm:d3@^3.5.16",
+      "json": "github:systemjs/plugin-json@^0.1.0",
+      "text": "github:systemjs/plugin-text@^0.0.4",
+      "scss": "github:mobilexag/plugin-sass@^0.2.1",
+      "three": "npm:three@^0.75.0",
+      "topojson": "npm:topojson@^1.6.24"
+    },
+    "devDependencies": {
+      "plugin-babel": "npm:systemjs-plugin-babel@^0.0.5"
+    },
+    "peerDependencies": {
+      "assert": "github:jspm/nodelibs-assert@^0.2.0-alpha",
+      "buffer": "github:jspm/nodelibs-buffer@^0.2.0-alpha",
+      "child_process": "github:jspm/nodelibs-child_process@^0.2.0-alpha",
+      "constants": "github:jspm/nodelibs-constants@^0.2.0-alpha",
+      "crypto": "github:jspm/nodelibs-crypto@^0.2.0-alpha",
+      "events": "github:jspm/nodelibs-events@^0.2.0-alpha",
+      "fs": "github:jspm/nodelibs-fs@^0.2.0-alpha",
+      "http": "github:jspm/nodelibs-http@^0.2.0-alpha",
+      "module": "github:jspm/nodelibs-module@^0.2.0-alpha",
+      "path": "github:jspm/nodelibs-path@^0.2.0-alpha",
+      "process": "github:jspm/nodelibs-process@^0.2.0-alpha",
+      "source-map": "npm:source-map@~0.1.33",
+      "stream": "github:jspm/nodelibs-stream@^0.2.0-alpha",
+      "string_decoder": "github:jspm/nodelibs-string_decoder@^0.2.0-alpha",
+      "tty": "github:jspm/nodelibs-tty@^0.2.0-alpha",
+      "url": "github:jspm/nodelibs-url@^0.2.0-alpha",
+      "util": "github:jspm/nodelibs-util@^0.2.0-alpha",
+      "vm": "github:jspm/nodelibs-vm@^0.2.0-alpha"
+    },
+    "overrides": {
+      "npm:d3@3.5.16": {
+        "meta": {
+          "d3.js": {
+            "exports": "d3",
+            "format": "global"
+          }
+        }
+      },
+      "npm:inherits@2.0.1": {
+        "ignore": [
+          "test.js"
+        ]
+      },
+      "npm:readable-stream@1.0.33": {
+        "map": {
+          "stream": "stream-browserify/index"
+        },
+        "systemjs": {
+          "main": "readable.js"
+        },
+        "dependencies": {
+          "core-util-is": "~1.0.0",
+          "isarray": "0.0.1",
+          "string_decoder": "~0.10.0",
+          "inherits": "~2.0.1",
+          "stream-browserify": "~1.0.0"
+        }
+      },
+      "npm:sass.js@0.9.7": {
+        "map": {
+          "ws": "@empty"
+        },
+        "meta": {
+          "dist/sass.worker.js": {}
+        }
+      }
+    }
+  },
+  "devDependencies": {
+    "browser-sync": "^2.11.1",
+    "graceful-fs": "^4.1.3",
+    "jspm": "^0.17.0-beta.7"
+  }
+}
