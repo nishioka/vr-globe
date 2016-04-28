@@ -59,6 +59,14 @@
           }
         }
       },
+      "npm:three@0.75.0": {
+        "meta": {
+          "three.js": {
+            "exports": "jQuery",
+            "format": "global"
+          }
+        }
+      },
       "npm:inherits@2.0.1": {
         "ignore": [
           "test.js"
@@ -93,5 +101,18 @@
     "browser-sync": "^2.11.1",
     "graceful-fs": "^4.1.3",
     "jspm": "^0.17.0-beta.7"
+  },
+  "eslintConfig": {
+    "env": {
+      "node": false,
+      "browser": true
+    },
+    "globals": {
+      "THREE": false,
+      "VRClient": false,
+      "ShaderLoader": false,
+      "HMDVRDevice": false,
+      "PositionSensorVRDevice": false
+    }
   }
 }

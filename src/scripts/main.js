@@ -1,4 +1,4 @@
-import { scene, camera, renderer } from './common/scene.js';
+import { scene, camera, renderer, control, cursor } from './common/sceneVR.js';
 import { setEvents } from './common/setEvents.js';
 import { convertToXYZ, getEventCenter, geodecoder } from './common/geoHelpers.js';
 import { mapTexture } from './common/mapTexture.js';
@@ -44,10 +44,10 @@ d3.json('src/data/world.json', function (err, data) {
   root.scale.set(2.5, 2.5, 2.5);
   root.add(baseGlobe);
   root.add(baseMap);
+
   scene.add(root);
 
   function onGlobeClick(event) {
-
     // Get pointc, convert to latitude/longitude
     var latlng = getEventCenter.call(this, event);
 
@@ -105,9 +105,3 @@ d3.json('src/data/world.json', function (err, data) {
   setEvents(camera, [baseGlobe], 'click');
   setEvents(camera, [baseGlobe], 'mousemove', 10);
 });
-
-function animate() {
-  requestAnimationFrame(animate);
-  renderer.render(scene, camera);
-}
-animate();

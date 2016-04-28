@@ -1,11 +1,13 @@
-import THREE from 'three';
 import d3 from 'd3';
+import THREE from 'three';
+import { vrRenderer, vrControl, initVR, vrMode } from './vr.js';
+import './OrbitControls.js';
 
-export var canvas = d3.select("body").append("canvas")
-  .attr("width", window.innerWidth)
-  .attr("height", window.innerHeight);
+export var canvas = d3.select("body").append('canvas')
+  .attr('width', window.innerWidth)
+  .attr('height', window.innerHeight);
 
-canvas.node().getContext("webgl");
+canvas.node().getContext('webgl');
 
 export var renderer = new THREE.WebGLRenderer({canvas: canvas.node(), antialias: true});
 
@@ -20,6 +22,9 @@ export var scene = new THREE.Scene();
 export var light = new THREE.HemisphereLight('#ffffff', '#666666', 1.5);
 light.position.set(0, 1000, 0);
 scene.add(light);
+
+export var control = new THREE.OrbitControls(camera);
+//export var control = new THREE.OrbitControls(camera, container);
 
 window.addEventListener('resize', onWindowResize, false);
 
