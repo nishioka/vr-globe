@@ -205,10 +205,10 @@ console.log('cursor disable');
     };
 
     // requires three.js dom and camera to initialize cursor.
-    this.init = function(dom, camera, context) {
-        self.dom = dom;
+    this.init = function(camera, context, dom) {
         self.camera = camera;
         self.context = context;
+        self.dom = dom;
     };
 
     // VR Cursor events

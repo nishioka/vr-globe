@@ -20,9 +20,12 @@ export var container = d3.select('body').append('div')
 var vrMode = false;
 var mobileMode = isMobile();
 console.log('mobileMode:', mobileMode);
+var helper = false;
 
 var dummyDolly = new THREE.Object3D();
 var controls = new THREE.VRControls(dummyDolly);
+
+var client = new VRClient(container.node());
 
 /**
  * UI for entering VR mode.
@@ -88,7 +91,7 @@ function createEnterVR(enterVRHandler, mobileMode) {
         wrapper.setAttribute(ENTER_VR_NO_HEADSET, '');
     }
 
-    VRClient.getVR.then(function() {
+    client.getVR.then(function() {
         // vr detected
         hasWebVR = true;
         // Handle enter VR flows.
@@ -169,7 +172,7 @@ stereoControl.maxDistance = 6000;
 export var control = monoControl;
 
 export var cursor = new THREE.VRCursor('mono');
-cursor.init(canvas, camera, scene);
+cursor.init(camera, scene, canvas);
 
 cursor.ready.then(function () {
     scene.add(cursor.layout);
@@ -180,6 +183,28 @@ cursor.ready.then(function () {
 });
 
 console.log('scene:', scene);
+
+function addAxisGrid() {
+    // X軸:赤, Y軸:緑, Z軸:青
+    var axis = new THREE.AxisHelper(2000);
+    scene.add(axis);
+
+    // GridHelper
+    var grid = new THREE.GridHelper(2000, 100);
+    scene.add(grid);
+
+    helper = true;
+}
+
+function removeAxisGrid() {
+    scene.remove(axis);
+    scene.remove(grid);
+
+    helper = false;
+}
+
+addAxisGrid();
+
 /**
  * Manually handles fullscreen for non-VR mobile where the renderer' VR
  * display is not polyfilled.
@@ -321,15 +346,15 @@ window.addEventListener('orientationchange', function() {
     }
 });
 
-VRClient.onFocus = function() {
+client.onFocus = function() {
     cursor.enable();
 };
 
-VRClient.onBlur = function() {
+client.onBlur = function() {
     cursor.disable();
 };
 
-VRClient.onReady = function() {
+client.onReady = function() {
     insideLoader = true;
     removeEnterVR();
 };

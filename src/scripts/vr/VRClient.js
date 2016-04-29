@@ -1,12 +1,11 @@
-VRClient = (function() {
-  function VRClient(container) {
+VRClient = function(container) {
     var self = this;
 
     // call back for render mode changes.
-    self.onRenderModeChange = null;
+    this.onRenderModeChange = null;
 
     // this promise resolves when VR devices are detected.
-    self.getVR = new Promise(function (resolve, reject) {
+    this.getVR = new Promise(function (resolve, reject) {
       if (navigator.getVRDevices) {
         navigator.getVRDevices().then(function (devices) {
           for (var i = 0; i < devices.length; ++i) {
@@ -36,11 +35,12 @@ VRClient = (function() {
       }
     });
 
-    self.wait = new Promise(function (resolve) {
+    this.wait = new Promise(function (resolve) {
       self.startDemo = resolve;
     });
 
     window.addEventListener('message', function (e) {
+console.log('message received ', e);
       var msg = e.data;
       if (!msg.type) {
         return;
@@ -74,39 +74,38 @@ console.log('message received ', msg.type, msg.data);
           break;
       }
     }, false);
-  }
 
-  VRClient.prototype.sendMessage = function (type, data) {
+  function sendMessage(type, data) {
     if (window.parent !== window) {
       window.parent.postMessage({
         type: type,
         data: data
       }, '*');
     }
-  };
+  }
 
-  VRClient.prototype.load = function (url) {
-    this.sendMessage('load', url);
+  this.load = function (url) {
+    sendMessage('load', url);
   };
 
   // Takes value 0..1 to represent demo load progress. Optional.
-  VRClient.prototype.progress = function (val) {
-    this.sendMessage('progress', val);
+  this.progress = function (val) {
+    sendMessage('progress', val);
   };
 
   // Notifies VRManager that demo is ready. Required.
-  VRClient.prototype.ready = function () {
-    this.sendMessage('ready');
+  this.ready = function () {
+    sendMessage('ready');
     return this.wait;
   };
 
   // if this demo has an completed and we can shit it down.
-  VRClient.prototype.ended = function() {
-    this.sendMessage('ended');
+  this.ended = function() {
+    sendMessage('ended');
   };
 
 
-  VRClient.prototype.zeroSensor = function () {
+  this.zeroSensor = function () {
     var self = this;
     self.getVR.then(function () {
       if (typeof self.onZeroSensor == 'function') {
@@ -115,7 +114,7 @@ console.log('message received ', msg.type, msg.data);
     });
   };
 
-  VRClient.prototype.setRenderMode = function(mode) {
+  this.setRenderMode = function(mode) {
     var self = this;
 
     if (typeof self.onRenderModeChange == 'function') {
@@ -123,12 +122,10 @@ console.log('message received ', msg.type, msg.data);
     }
   };
 
-  VRClient.renderModes = VRClient.prototype.renderModes = {
+  this.renderModes = {
     mono: 1,
     stereo: 2,
     vr: 3
   };
 
-  return new VRClient();
-
-})();
+};
