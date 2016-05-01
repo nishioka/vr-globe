@@ -1,8 +1,7 @@
-import { scene, camera, renderer, control, cursor } from './common/sceneVR.js';
-import { setEvents } from './common/setEvents.js';
+import { scene, camera, renderer, cursor } from './common/sceneVR.js';
 import { convertToXYZ, getEventCenter, geodecoder } from './common/geoHelpers.js';
 import { mapTexture } from './common/mapTexture.js';
-import { getTween, memoize } from './common/utils.js';
+import { getTween, memoize, debounce } from './common/utils.js';
 import THREE from 'three';
 import d3 from 'd3';
 import topojson from 'topojson';
@@ -30,8 +29,6 @@ d3.json('src/data/world.json', function (err, data) {
   let sphere = new THREE.SphereGeometry(200, segments, segments);
   let baseGlobe = new THREE.Mesh(sphere, blueMaterial);
   baseGlobe.rotation.y = Math.PI;
-  baseGlobe.addEventListener('click', onGlobeClick);
-  baseGlobe.addEventListener('mousemove', onGlobeMousemove);
 
   // add base map layer with all countries
   let worldTexture = mapTexture(countries, '#647089');
@@ -46,6 +43,16 @@ d3.json('src/data/world.json', function (err, data) {
   root.add(baseMap);
 
   scene.add(root);
+
+cursor.init(camera, [baseGlobe]);
+
+cursor.ready.then(function () {
+    console.log('cursor:', cursor);
+    scene.add(cursor.layout);
+//    cursor.cursorMesh.position.setZ(-0.35);
+    cursor.cursorMesh.material.color.setHex(0x81d41d);
+    cursor.enable();
+});
 
   function onGlobeClick(event) {
     // Get pointc, convert to latitude/longitude
@@ -102,6 +109,9 @@ d3.json('src/data/world.json', function (err, data) {
     }
   }
 
-  setEvents(camera, [baseGlobe], 'click');
-  setEvents(camera, [baseGlobe], 'mousemove', 10);
+  baseGlobe.addEventListener('click', onGlobeClick);
+  baseGlobe.addEventListener('mousemove', onGlobeMousemove);
+
+//  cursor.setEvents(camera, [baseGlobe], 'click');
+//  cursor.setEvents(camera, [baseGlobe], 'mousemove', 10);
 });

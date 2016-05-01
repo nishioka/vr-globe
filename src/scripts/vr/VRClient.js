@@ -1,4 +1,6 @@
 VRClient = function(container) {
+    'use strict';
+
     var self = this;
 
     // call back for render mode changes.

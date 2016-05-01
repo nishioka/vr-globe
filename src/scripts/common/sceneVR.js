@@ -172,17 +172,6 @@ stereoControl.maxDistance = 6000;
 export var control = monoControl;
 
 export var cursor = new THREE.VRCursor('mono');
-cursor.init(camera, scene, canvas);
-
-cursor.ready.then(function () {
-    scene.add(cursor.layout);
-    cursor.cursor.position.setZ(-0.35);
-    cursor.cursor.material.color.setHex(0x81d41d);
-    cursor.enable();
-    console.log('cursor:', cursor);
-});
-
-console.log('scene:', scene);
 
 function addAxisGrid() {
     // X軸:赤, Y軸:緑, Z軸:青

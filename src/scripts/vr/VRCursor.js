@@ -1,4 +1,5 @@
 import THREE from 'three';
+import { debounce } from '../common/utils.js';
 
 THREE.VRCursor = function(modeVR) {
     'use strict';
@@ -37,8 +38,33 @@ THREE.VRCursor = function(modeVR) {
         mono: 5
     };
 
+    // VR Cursor events
+    this.events = {
+        clickEvent: {
+            type: 'click'
+        },
+        mouseMoveEvent: {
+            type: 'mousemove'
+        },
+        mouseOverEvent: {
+            type: 'mouseover'
+        },
+        mouseOutEvent: {
+            type: 'mouseout'
+        },
+        mouseDownEvent: {
+            type: 'mousedown'
+        }
+    };
+
     // object which cursor currently intersects
     this.objectMouseOver = null;
+
+    // requires three.js dom and camera to initialize cursor.
+    this.init = function(camera, items) {
+        self.camera = camera;
+        self.items = items;
+    };
 
     // cursor operating mode
     this.mode = modeVR || 'centered';
@@ -77,7 +103,7 @@ THREE.VRCursor = function(modeVR) {
         //self.projector = new THREE.Projector();
 
         // cursor mesh
-        self.cursor = new THREE.Mesh(
+        self.cursorMesh = new THREE.Mesh(
             new THREE.SphereGeometry(0.005, 5, 5),
             new THREE.MeshBasicMaterial({
                 color: Math.random() * 0xffffff,
@@ -86,9 +112,9 @@ THREE.VRCursor = function(modeVR) {
         );
 
         // set the depth of cursor
-        self.cursor.position.z = -2;
+        self.cursorMesh.position.z = -2;
 
-        self.cursorPivot.add(self.cursor);
+        self.cursorPivot.add(self.cursorMesh);
 
         self.layout.add(self.cursorPivot);
 
@@ -118,7 +144,7 @@ THREE.VRCursor = function(modeVR) {
 
         // everything below assumes pointerlock
         if (self.mode === self.modes.hides) {
-            if (!self.cursor.visible) {
+            if (!self.cursorMesh.visible) {
                 self.showQuat = new THREE.Quaternion().copy(self.headQuat());
                 self.rotation.x = 0;
                 self.rotation.y = 0;
@@ -185,9 +211,9 @@ THREE.VRCursor = function(modeVR) {
     //self.bindEvents();
 
     // enable cursor with context, otherwise pick last
-    this.enable = function(context) {
-        if (context) {
-            self.context = context;
+    this.enable = function(items) {
+        if (items) {
+            self.items = items;
         }
         if (!self.enabled) {
 console.log('cursor enable');
@@ -204,32 +230,6 @@ console.log('cursor disable');
         }
     };
 
-    // requires three.js dom and camera to initialize cursor.
-    this.init = function(camera, context, dom) {
-        self.camera = camera;
-        self.context = context;
-        self.dom = dom;
-    };
-
-    // VR Cursor events
-    this.events = {
-        clickEvent: {
-            type: 'click'
-        },
-        mouseMoveEvent: {
-            type: 'mousemove'
-        },
-        mouseOverEvent: {
-            type: 'mouseover'
-        },
-        mouseOutEvent: {
-            type: 'mouseout'
-        },
-        mouseDownEvent: {
-            type: 'mousedown'
-        }
-    };
-
     this.clampAngleTo = function(angle, boundary) {
         if (angle < -boundary) {
             return -boundary;
@@ -241,12 +241,11 @@ console.log('cursor disable');
     };
 
     this.hide = function(delay, hidden) {
-        var self = this;
         clearTimeout(self.hideCursorTimeout);
         self.hideCursorTimeout = setTimeout(hideCursor, delay);
 
         function hideCursor() {
-            self.cursor.visible = false;
+            self.cursorMesh.visible = false;
             if (hidden) {
                 hidden();
             }
@@ -254,7 +253,7 @@ console.log('cursor disable');
     };
 
     this.show = function() {
-        self.cursor.visible = true;
+        self.cursorMesh.visible = true;
     };
 
     this.headQuat = function() {
@@ -343,7 +342,6 @@ console.log('cursor disable');
     }
 
     function updatePositionHides(headQuat) {
-        var self = this;
         var rotation = new THREE.Euler(self.rotation.x, self.rotation.y, 0);
         var mouseQuat = new THREE.Quaternion().setFromEuler(rotation, true);
         var cursorPivot = self.cursorPivot;
@@ -365,7 +363,7 @@ console.log('cursor disable');
     function updateCursorIntersection() {
         var camera = self.camera;
         var raycaster = self.raycaster;
-        var cursor = self.cursor;
+        var cursorMesh = self.cursorMesh;
         var mouse = self.mouse;
 
         if (!camera) {
@@ -373,11 +371,11 @@ console.log('cursor disable');
             return false;
         }
 
-        if (mouse && self.mode == self.modes.mono) {
+        if (mouse && self.mode === self.modes.mono) {
             raycaster.set(camera.position, mouse);
         } else {
-            cursor.updateMatrixWorld(true);
-            var cursorPosition = cursor.matrixWorld;
+            cursorMesh.updateMatrixWorld(true);
+            var cursorPosition = cursorMesh.matrixWorld;
             var vector = new THREE.Vector3().setFromMatrixPosition(cursorPosition);
 
             // Draws RAY
@@ -392,45 +390,103 @@ console.log('cursor disable');
             raycaster.set(camera.position, vector.sub(camera.position).normalize());
         }
 
-        var intersects = raycaster.intersectObjects(self.context.children);
-        //var intersects = raycaster.intersectObjects(self.objects);
-        //console.log('objects', window.objects);
-        var intersected;
+        //var intersects = raycaster.intersectObjects(self.context.children);
+        var intersects = raycaster.intersectObjects(self.items);
+//console.log('intersects.length', intersects.length);
 
-        var objectMouseOver = self.objectMouseOver;
-        var events = self.events;
+        // var objectMouseOver = self.objectMouseOver;
+        // var events = self.events;
+        //
+        // if (intersects.length === 0 && objectMouseOver !== null) {
+        //     self.objectMouseOver.dispatchEvent(events.mouseOutEvent);
+        //     //console.log('intersected(mouseOut)', self.objectMouseOver);
+        //     self.objectMouseOver = null;
+        // }
 
-        if (intersects.length === 0 && objectMouseOver !== null) {
-            self.objectMouseOver.dispatchEvent(events.mouseOutEvent);
-            //console.log('intersected(mouseOut)', self.objectMouseOver);
-            self.objectMouseOver = null;
-        }
-console.log('intersects.length', intersects.length);
-
-        var i;
-        for (i = 0; i < intersects.length; ++i) {
-            intersected = intersects[0].object;
+        // var intersected;
+        // var i;
+        for (var i = 0; i < intersects.length; ++i) {
+//            var intersected = intersects[i].object;
 //console.log('intersected:', intersected);
 //console.log('objectMouseOver:', objectMouseOver);
 //console.log('self.objectMouseOver', self.objectMouseOver);
-            if (objectMouseOver && intersected !== objectMouseOver) {
-                if (objectMouseOver !== null) {
-                    objectMouseOver.dispatchEvent(events.mouseOutEvent);
-console.log('objectMouseOver:', objectMouseOver);
-                }
-                if (intersected !== null) {
-console.log('intersected:', intersected);
-                    if (intersected.allAncestors(function() {
-                            return self.visible;
-                        })) {
-                        intersected.dispatchEvent(events.mouseOverEvent);
-                        //console.log('intersected(mouseOver)', intersected);
-                    }
-                }
+//            if (intersected !== objectMouseOver) {
+//                if (objectMouseOver !== null) {
+//                    objectMouseOver.dispatchEvent(events.mouseOutEvent);
+//console.log('objectMouseOver:', objectMouseOver);
+//                }
+//                if (intersected !== null) {
+//console.log('intersected:', intersected);
+//                    if (intersected.allAncestors(function() {
+//                            return self.visible;
+//                        })) {
+//                        intersected.dispatchEvent(events.mouseOverEvent);
+                        intersects[i].type = 'mousemove';
+                        intersects[i].object.dispatchEvent(intersects[i]);
 
-                self.objectMouseOver = intersected;
-            }
+                        //console.log('intersected(mouseOver)', intersected);
+//                    }
+//                }
+
+//                self.objectMouseOver = intersected;
+//            }
         }
+    }
+
+//  let raycaster = new THREE.Raycaster();
+
+    this.setEvents = function(camera, items, type, wait) {
+      var raycaster = self.raycaster;
+      var cursorMesh = self.cursorMesh;
+
+      let listener = function(event) {
+
+        let mouse = {
+          x: ((event.clientX - 1) / window.innerWidth ) * 2 - 1,
+          y: -((event.clientY - 1) / window.innerHeight) * 2 + 1
+        };
+
+        let vector;
+
+        if (mouse && self.mode === self.modes.mono) {
+          vector = new THREE.Vector3();
+          vector.set(mouse.x, mouse.y, 0.5);
+          vector.unproject(camera);
+
+          //  raycaster.set(camera.position, mouse);
+        } else {
+            cursorMesh.updateMatrixWorld(true);
+            var cursorPosition = cursorMesh.matrixWorld;
+            vector = new THREE.Vector3().setFromMatrixPosition(cursorPosition);
+console.log('cursorPosition:', cursorPosition);
+
+            // Draws RAY
+            // var geometry = new THREE.Geometry();
+            // geometry.vertices.push(camera.position);
+            // geometry.vertices.push(vector.sub(camera.position).normalize().multiplyScalar(5000));
+            //
+            // self.context.remove(self.line);
+            // self.line = new THREE.Line(geometry, new THREE.LineBasicMaterial({color: 0xFF0000}));
+            // self.context.add(self.line);
+
+        }
+        raycaster.set(camera.position, vector.sub(camera.position).normalize());
+
+        let target = raycaster.intersectObjects(items);
+
+        if (target.length) {
+console.log('target[0]:', target[0]);
+          target[0].type = type;
+          target[0].object.dispatchEvent(target[0]);
+        }
+
+      };
+
+      if (!wait) {
+        document.addEventListener(type, listener, false);
+      } else {
+        document.addEventListener(type, debounce(listener, wait), false);
+      }
     }
 
     // function quaternionsQuat(q1, q2) {
