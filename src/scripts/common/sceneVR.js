@@ -280,6 +280,7 @@ function setMonoRenderer() {
  */
 function setStereoRenderer() {
     renderer = stereoRenderer;
+    //cursor.setMode('inFOV'); // head tracking cursor
     cursor.setMode('centered'); // head tracking cursor
     vrMode = true;
     resize();
@@ -290,6 +291,7 @@ function setStereoRenderer() {
  */
 var enterVR = function() {
     setStereoRenderer();
+
     if (mobileMode) {
         setFullscreen(canvas);
     } else {
@@ -374,13 +376,13 @@ function animate() {
         stereoControl.update();
         // Render the scene through the VREffect.
         stereoRenderer.render(scene, camera);
-
-        cursor && cursor.update();
 //console.log('camera ', 'position:', camera.position, 'rotation:', camera.rotation);
     } else {
         var delta = clock.getDelta();
         monoControl.update(delta);
         monoRenderer.render(scene, camera);
     }
+
+    cursor && cursor.update();
 }
 animate();

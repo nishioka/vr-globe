@@ -11,7 +11,7 @@ npm run serve
 
 ## Original
 
-[delimited.io](http://www.delimited.io/)
+[sghall/webgl-globes](https://github.com/sghall/webgl-globes)
 
 ## License
 Under the [MIT License](https://tldrlegal.com/l/mit).

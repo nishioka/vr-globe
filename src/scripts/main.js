@@ -12,6 +12,7 @@ d3.json('src/data/world.json', function (err, data) {
     .style("opacity", 0).remove();
 
   var currentCountry, overlay;
+  var selectCounter;
 
   var segments = 155; // number of vertices. Higher = better mouse accuracy
 
@@ -44,15 +45,14 @@ d3.json('src/data/world.json', function (err, data) {
 
   scene.add(root);
 
-cursor.init(camera, [baseGlobe]);
+  cursor.init(camera, [baseGlobe]);
 
-cursor.ready.then(function () {
-    console.log('cursor:', cursor);
-    scene.add(cursor.layout);
-//    cursor.cursorMesh.position.setZ(-0.35);
-    cursor.cursorMesh.material.color.setHex(0x81d41d);
-    cursor.enable();
-});
+  cursor.ready.then(function () {
+      scene.add(cursor.layout);
+//      cursor.cursorMesh.position.setZ(-0.35);
+      cursor.cursorMesh.material.color.setHex(0x81d41d);
+      cursor.enable();
+  });
 
   function onGlobeClick(event) {
     // Get pointc, convert to latitude/longitude
@@ -88,30 +88,40 @@ cursor.ready.then(function () {
     // Look for country at that latitude/longitude
     var country = geo.search(latlng[0], latlng[1]);
 
-    if (country !== null && country.code !== currentCountry) {
+    if (country !== null) {
+      if (country.code !== currentCountry) {
 
-      // Track the current country displayed
-      currentCountry = country.code;
+        // Track the current country displayed
+        currentCountry = country.code;
 
-      // Update the html
-      d3.select("#msg").html(country.code);
+        selectCounter = new Date();
 
-       // Overlay the selected country
-      map = textureCache(country.code, '#CDC290');
-      material = new THREE.MeshPhongMaterial({map: map, transparent: true});
-      if (!overlay) {
-        overlay = new THREE.Mesh(new THREE.SphereGeometry(201, 40, 40), material);
-        overlay.rotation.y = Math.PI;
-        root.add(overlay);
+        // Update the html
+        d3.select("#msg").html(country.code);
+
+         // Overlay the selected country
+        map = textureCache(country.code, '#CDC290');
+        material = new THREE.MeshPhongMaterial({map: map, transparent: true});
+        if (!overlay) {
+          overlay = new THREE.Mesh(new THREE.SphereGeometry(201, 40, 40), material);
+          overlay.rotation.y = Math.PI;
+          root.add(overlay);
+        } else {
+          overlay.material = material;
+        }
       } else {
-        overlay.material = material;
+        var now = new Date();
+        var delta = now - selectCounter;
+        if (delta > 3000) {
+          event.type = 'click';
+          event.object.dispatchEvent(event);
+        }
       }
+    } else {
+      selectCounter = new Date();
     }
   }
 
   baseGlobe.addEventListener('click', onGlobeClick);
   baseGlobe.addEventListener('mousemove', onGlobeMousemove);
-
-//  cursor.setEvents(camera, [baseGlobe], 'click');
-//  cursor.setEvents(camera, [baseGlobe], 'mousemove', 10);
 });
