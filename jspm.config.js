@@ -330,6 +330,7 @@ SystemJS.config({
         "core-util-is": "npm:core-util-is@1.0.2",
         "inherits": "npm:inherits@2.0.1",
         "isarray": "npm:isarray@0.0.1",
+        "stream-browserify": "npm:stream-browserify@1.0.0",
         "string_decoder": "npm:string_decoder@0.10.31"
       }
     },
