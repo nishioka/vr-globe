@@ -24,7 +24,7 @@
       "json": "github:systemjs/plugin-json@^0.1.0",
       "text": "github:systemjs/plugin-text@^0.0.4",
       "scss": "github:mobilexag/plugin-sass@^0.2.1",
-      "three": "npm:three@^0.75.0",
+      "three": "github:mrdoob/three.js@master",
       "topojson": "npm:topojson@^1.6.24"
     },
     "devDependencies": {
@@ -55,29 +55,6 @@
         "meta": {
           "d3.js": {
             "exports": "d3",
-            "format": "global"
-          }
-        }
-      },
-      "npm:readable-stream@1.1.13": {
-        "map": {
-          "stream": "stream-browserify/index"
-        },
-        "systemjs": {
-          "main": "readable.js"
-        },
-        "dependencies": {
-          "core-util-is": "~1.0.0",
-          "isarray": "0.0.1",
-          "string_decoder": "~0.10.0",
-          "inherits": "~2.0.1",
-          "stream-browserify": "~1.0.0"
-        }
-      },
-      "npm:three@0.75.0": {
-        "meta": {
-          "three.js": {
-            "exports": "jQuery",
             "format": "global"
           }
         }
