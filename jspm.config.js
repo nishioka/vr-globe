@@ -36,7 +36,7 @@ SystemJS.config({
     "stream": "github:jspm/nodelibs-stream@0.2.0-alpha",
     "string_decoder": "github:jspm/nodelibs-string_decoder@0.2.0-alpha",
     "text": "github:systemjs/plugin-text@0.0.4",
-    "three": "npm:three@0.75.0",
+    "three": "github:mrdoob/three.js@master",
     "topojson": "npm:topojson@1.6.24",
     "tty": "github:jspm/nodelibs-tty@0.2.0-alpha",
     "url": "github:jspm/nodelibs-url@0.2.0-alpha",
